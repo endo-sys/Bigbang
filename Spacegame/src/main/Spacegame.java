@@ -1,11 +1,13 @@
 package main;
 
 import main.Gameobject.bomberenemy;
+import main.Gameobject.player2;
 import main.Gameobject.Player;
 import main.Gameobject.laser;
 import main.Gameobject.enemy;
 import processing.core.PApplet;
 import processing.core.PImage;
+import main.Gameobject.bomb;
 
 import java.util.ArrayList;
 
@@ -14,27 +16,41 @@ public class Spacegame extends PApplet {
         PApplet.main(new String[]{Spacegame.class.getName()});
     }
 
-    public static PImage bg, oyuncuresmi,laserresmi,düşmanlazeri,düşmanresmi,bombacıresmi;
-    int y3;
+    public static PImage bg, oyuncuresmi,laserresmi,düşmanlazeri,düşmanresmi,bombacıresmi,player2resim,bombaresmi;
+
     public static Player p1;
+    public static  player2 p2;
     public static enemy em1;
     public static bomberenemy bm1;
 
     public static ArrayList<laser> lasers;
+    public static ArrayList<enemy> emenies;
+    public static ArrayList<bomb> bombs;
+    public static final String tagplayer="player";
+    public static final String tagenemy ="enemy";
     public static float deltatime;
     public void settings(){
-        size(800,600);
+        size(1280,720);
         bg = loadImage("res/space.jpg");
         oyuncuresmi =loadImage("res/playership.png");
+        player2resim= loadImage("res/player2.png");
+        bombaresmi= loadImage("res/bomb.png");
         laserresmi= loadImage("res/laser.png");
+
         düşmanresmi = loadImage("res/enemyRed2.png");
         bombacıresmi= loadImage("res/bombacı.png");
-        p1 = new Player(this,oyuncuresmi,width/2-oyuncuresmi.width/2,height-oyuncuresmi.height,1.5f);
-        em1 = new enemy(this, düşmanresmi, width/2-düşmanresmi.width/2, düşmanresmi.height, 2f);
-        bm1= new bomberenemy(this,bombacıresmi,0,0,2f);
+        p1 = new Player(this,oyuncuresmi,tagplayer,width/2-oyuncuresmi.width/2,height-oyuncuresmi.height,1.5f);
+        p2 = new player2(this,player2resim,0,0,2);
+        em1 = new enemy(this, düşmanresmi, tagenemy,width/2-düşmanresmi.width/2, düşmanresmi.height, 2f);
+        bm1= new bomberenemy(this,"bomber",bombacıresmi,0,0,1.5f);
         lasers = new ArrayList<laser>();
+        bombs = new ArrayList<bomb>();
+        emenies= new ArrayList<enemy>();
+        emenies.add(em1);
+
         time1 = millis();
         System.out.println(p1.getScore());
+
 
     }
 
@@ -46,18 +62,54 @@ public class Spacegame extends PApplet {
         wrap(bg,0,0,width,height);
         for(laser l:lasers)
             l.render();
-        p1.render();
-        em1.render();
-        bm1.render();
-        for(laser l:lasers)
-            l.hareket();
+
+
+       for(enemy e:emenies)
+           em1.render();
+       p1.render();
+
+
+        for (int i=emenies.size()-1;i>=0;i--){
+            if (emenies.get(i).getCanhakkı()<=0){
+                emenies.remove(i);
+
+            }
+            else {
+                emenies.get(i).act();
+            }
+        }
+       for (int i=lasers.size()-1;i>=0;i--){
+           if (lasers.get(i).getHealth()<=0){
+               lasers.remove(i);
+           }
+           else {
+               lasers.get(i).hareket();
+           }
+       }
+
+
+
+
+
         p1.move();
 
-        em1.act();
+
        bm1.render();
-       bm1.hareketet();
+       bm1.yerleştir();
+       bm1.update();
         time1=millis();
-    }
+        if (p1.getScore()>100){
+            p2.render();
+            p2.hareketet();}
+
+
+        }
+            
+
+
+
+
+
 
 
 
@@ -85,4 +137,11 @@ public class Spacegame extends PApplet {
         if(key == ' ') keys[4] = false;
     }
 
+    public static float getDeltatime() {
+        return deltatime;
+    }
+
+    public static void setDeltatime(float deltatime) {
+        Spacegame.deltatime = deltatime;
+    }
 }
